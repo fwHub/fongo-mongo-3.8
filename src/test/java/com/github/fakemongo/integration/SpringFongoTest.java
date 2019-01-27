@@ -1,20 +1,10 @@
 package com.github.fakemongo.integration;
 
 import com.github.fakemongo.Fongo;
-import com.mongodb.Mongo;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -33,11 +23,18 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 import org.springframework.data.mongodb.core.query.NearQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.hateoas.Identifiable;
+
+import java.io.Serializable;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class SpringFongoTest {
 
@@ -144,7 +141,7 @@ public class SpringFongoTest {
     mongoRepository.save(referencedObject);
 
     // Then
-    Assert.assertEquals(referencedObject, mongoRepository.findOne(referencedObject.getId()));
+    Assert.assertEquals(Optional.of(referencedObject), mongoRepository.findById(referencedObject.getId()));
   }
 
   @Test
@@ -218,7 +215,7 @@ public class SpringFongoTest {
 
     @Override
     @Bean
-    public Mongo mongo() throws Exception {
+    public MongoClient mongoClient() {
 //      return new MongoClient();
       return new Fongo("spring-test").getMongo();
     }

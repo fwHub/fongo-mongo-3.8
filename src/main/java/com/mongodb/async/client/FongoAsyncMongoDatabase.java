@@ -15,6 +15,6 @@ import org.bson.codecs.configuration.CodecRegistry;
 public class FongoAsyncMongoDatabase extends MongoDatabaseImpl {
 
   public FongoAsyncMongoDatabase(String name, CodecRegistry codecRegistry, ReadPreference readPreference, WriteConcern writeConcern, ReadConcern readConcern, FongoAsync fongoAsync) {
-    super(name, codecRegistry, readPreference, writeConcern, readConcern, fongoAsync);
+    super(name, codecRegistry, readPreference, writeConcern, true, readConcern, fongoAsync);
   }
 }

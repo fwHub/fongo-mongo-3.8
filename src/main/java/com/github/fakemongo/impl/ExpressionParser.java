@@ -1044,7 +1044,7 @@ public class ExpressionParser {
       @Override
       public boolean apply(DBObject o) {
 
-        Geometry local = GeoUtil.toGeometry(Util.extractField(o, path));
+        Geometry local = GeoUtil.toGeometry((DBObject) Util.extractField(o, path));
         return GeoUtil.geowithin(local, geometry);
       }
     };
@@ -1056,7 +1056,7 @@ public class ExpressionParser {
       @Override
       public boolean apply(DBObject o) {
 
-        Geometry local = GeoUtil.toGeometry(Util.extractField(o, path));
+        Geometry local = GeoUtil.toGeometry((DBObject) Util.extractField(o, path));
         return GeoUtil.geowithin(local, geometry);
       }
     };

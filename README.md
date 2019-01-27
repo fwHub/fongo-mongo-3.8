@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/fakemongo/fongo.svg?branch=master)](https://travis-ci.org/fakemongo/fongo)
+___This is a fork of https://github.com/fakemongo/fongo, adapted to work with Mongo 3.8 and Spring Data 2.x (which means also with Java 8+ only).___
+
+We've forked Fongo only to provide a way to migrate to the 3.8 version of Mongo driver, and to Spring Data 2.x.
+If that work can be of any help to anyone else, that's great, but we don't plan to add anything else to Fongo.
+Ideally, the Fongo team will find a way to release a 3.8-compatible version :-)
 
 # fongo
 
@@ -9,36 +13,21 @@ don't want to spin up a `mongod` process.
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.fakemongo/fongo/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.fakemongo/fongo/) ![License Apache2](https://go-shields.herokuapp.com/license-apache2-blue.png)
 
 ## Usage
-Add dependency to your project:
 
-### If you use 3.X drivers (async included)
+Clone this repo and build/install the jar into your organization Maven repository, or your local one: `mvn install`.
+Add the following dependency to your project:
 
 ```xml
 <dependency>
-  <groupId>com.github.fakemongo</groupId>
-  <artifactId>fongo</artifactId>
-  <version>2.1.0</version>
+  <groupId>com.malt.fakemongo</groupId>
+  <artifactId>fongo-mongo-3.8</artifactId>
+  <version>2.1.2-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```
 
 [Other dependency management](http://search.maven.org/#artifactdetails|com.github.fakemongo|fongo|2.1.0)
 
-### If you use 2.X drivers (this branch *fongo-drivers-2.x*) will be deprecated soon
-
-```xml
-<dependency>
-  <groupId>com.github.fakemongo</groupId>
-  <artifactId>fongo</artifactId>
-  <version>1.6.5</version>
-  <scope>test</scope>
-</dependency>
-```
-
-[Other dependency management](http://search.maven.org/#artifactdetails|com.github.fakemongo|fongo|1.6.5)
-
-
-*Alternatively: clone this repo and build the jar: `mvn package` then copy jar to your classpath*
 
 Use in place of regular `com.mongodb.Mongo` instance:
 

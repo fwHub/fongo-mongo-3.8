@@ -6,15 +6,17 @@ import com.google.common.collect.Lists;
 import com.mongodb.AggregationOutput;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import java.util.List;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class FongoAggregateZipTest {
 
@@ -98,13 +100,13 @@ public class FongoAggregateZipTest {
 //        "{ \"biggestCity\" : { \"name\" : \"WORCESTER\" , \"pop\" : 169856} , \"smallestCity\" : { \"name\" : \"BUCKLAND\" , \"pop\" : 16} , \"state\" : \"MA\"}]"), resultAggregate);
     assertEquals(8, resultAggregate.size());
     assertEquals("BRIDGEPORT", Util.extractField(resultAggregate.get(0), "biggestCity.name"));
-    assertEquals(141638, Util.extractField(resultAggregate.get(0), "biggestCity.pop"));
+    assertEquals(141638, (int) Util.extractField(resultAggregate.get(0), "biggestCity.pop"));
     assertEquals("EAST KILLINGLY", Util.extractField(resultAggregate.get(0), "smallestCity.name"));
-    assertEquals(25, Util.extractField(resultAggregate.get(0), "smallestCity.pop"));
+    assertEquals(25, (int) Util.extractField(resultAggregate.get(0), "smallestCity.pop"));
     DBObject last = resultAggregate.get(resultAggregate.size() - 1);
     assertEquals("WORCESTER", Util.extractField(last, "biggestCity.name"));
-    assertEquals(169856, Util.extractField(last, "biggestCity.pop"));
+    assertEquals(169856, (int) Util.extractField(last, "biggestCity.pop"));
     assertEquals("BUCKLAND", Util.extractField(last, "smallestCity.name"));
-    assertEquals(16, Util.extractField(last, "smallestCity.pop"));
+    assertEquals(16, (int) Util.extractField(last, "smallestCity.pop"));
   }
 }

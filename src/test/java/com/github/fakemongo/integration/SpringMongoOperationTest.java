@@ -2,26 +2,29 @@ package com.github.fakemongo.integration;
 
 import com.github.fakemongo.junit.FongoRule;
 import com.google.common.collect.Sets;
-import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
-import com.mongodb.WriteResult;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import org.assertj.core.api.Assertions;
-import static org.junit.Assert.assertEquals;
+import org.bson.Document;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.core.index.IndexInfo;
+import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Update;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
-import org.springframework.data.mongodb.core.query.Update;
 
 /**
  * User: william
@@ -36,9 +39,9 @@ public class SpringMongoOperationTest {
 
   @Before
   public void before() throws Exception {
-    Mongo mongo = fongoRule.getMongo();
+    MongoClient mongoClient = fongoRule.getMongoClient();
     //Mongo mongo = new MongoClient();
-    mongoOperations = new MongoTemplate(new SimpleMongoDbFactory(mongo, UUID.randomUUID().toString()));
+    mongoOperations = new MongoTemplate(new SimpleMongoDbFactory(mongoClient, UUID.randomUUID().toString()));
   }
 
   @Test
@@ -46,7 +49,7 @@ public class SpringMongoOperationTest {
     Item item = new Item(UUID.randomUUID(), "name", new Date());
     mongoOperations.insert(item);
 
-    DBCollection collection = mongoOperations.getCollection(Item.COLLECTION_NAME);
+    MongoCollection<Document> collection = mongoOperations.getCollection(Item.COLLECTION_NAME);
     assertEquals(1, collection.count());
 
     IndexOperations indexOperations = mongoOperations.indexOps(Item.COLLECTION_NAME);
@@ -97,10 +100,10 @@ public class SpringMongoOperationTest {
     String idToPull = null;
 
     // When
-    final WriteResult writeResult = mongoOperations.updateFirst(query(where("_id").is(a.id).and("bs").elemMatch(where("reference").is(reference))), new Update().pull("bs.$.ids", idToPull), A.class);
+    final UpdateResult writeResult = mongoOperations.updateFirst(query(where("_id").is(a.id).and("bs").elemMatch(where("reference").is(reference))), new Update().pull("bs.$.ids", idToPull), A.class);
 
     // Then
-    Assertions.assertThat(writeResult.getN()).isEqualTo(1);
+    Assertions.assertThat(writeResult.getModifiedCount()).isEqualTo(1);
   }
 
 }

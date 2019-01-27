@@ -1,15 +1,17 @@
-package com.mongodb;
+package com.mongodb.client.internal;
 
 import com.github.fakemongo.Fongo;
+import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.model.IndexModel;
 import com.mongodb.util.FongoJSON;
-import java.util.ArrayList;
-import java.util.List;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -21,7 +23,7 @@ public class FongoMongoCollection<TDocument> extends MongoCollectionImpl<TDocume
   private final DBCollection dbCollection;
 
   FongoMongoCollection(Fongo fongo, MongoNamespace namespace, Class<TDocument> tDocumentClass, CodecRegistry codecRegistry, ReadPreference readPreference, WriteConcern writeConcern, ReadConcern readConcern) {
-    super(namespace, tDocumentClass, codecRegistry, readPreference, writeConcern, readConcern, fongo);
+    super(namespace, tDocumentClass, codecRegistry, readPreference, writeConcern, true, readConcern, fongo);
     this.fongo = fongo;
     this.dbCollection = fongo.getDB(namespace.getDatabaseName()).getCollection(namespace.getCollectionName());
   }

@@ -1,13 +1,7 @@
 package com.mongodb;
 
 import com.github.fakemongo.FongoException;
-import com.github.fakemongo.impl.Aggregator;
-import com.github.fakemongo.impl.ExpressionParser;
-import com.github.fakemongo.impl.Filter;
-import com.github.fakemongo.impl.MapReduce;
-import com.github.fakemongo.impl.Tuple2;
-import com.github.fakemongo.impl.UpdateEngine;
-import com.github.fakemongo.impl.Util;
+import com.github.fakemongo.impl.*;
 import com.github.fakemongo.impl.geo.GeoUtil;
 import com.github.fakemongo.impl.index.GeoIndex;
 import com.github.fakemongo.impl.index.IndexAbstract;
@@ -15,24 +9,7 @@ import com.github.fakemongo.impl.index.IndexFactory;
 import com.github.fakemongo.impl.text.TextSearch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import org.bson.BSON;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonDocumentReader;
-import org.bson.BsonDocumentWriter;
-import org.bson.BsonValue;
+import org.bson.*;
 import org.bson.codecs.Codec;
 import org.bson.codecs.Decoder;
 import org.bson.codecs.DecoderContext;
@@ -46,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.assertions.Assertions.isTrueArgument;
 import static java.util.Collections.emptyList;
@@ -507,16 +486,7 @@ public class FongoDBCollection extends DBCollection {
     if (options != null && options.containsField("name")) {
       rec.append("name", options.get("name"));
     } else {
-      StringBuilder sb = new StringBuilder();
-      boolean firstLoop = true;
-      for (String keyName : keys.keySet()) {
-        if (!firstLoop) {
-          sb.append("_");
-        }
-        sb.append(keyName).append("_").append(keys.get(keyName));
-        firstLoop = false;
-      }
-      rec.append("name", sb.toString());
+      rec.append("name", createIndexNameFromKeys(keys));
     }
     // Ensure index doesn't exist.
     final DBObject oldIndex = indexColl.findOne(rec);
@@ -558,6 +528,25 @@ public class FongoDBCollection extends DBCollection {
 
     // Add index if all fine.
     indexColl.insert(rec);
+  }
+
+  public String createIndexNameFromKeys(DBObject keys) {
+    StringBuilder sb = new StringBuilder();
+    boolean firstLoop = true;
+    for (String keyName : keys.keySet()) {
+      if (!firstLoop) {
+        sb.append("_");
+      }
+      sb.append(keyName).append("_");
+      Object indexOrder = keys.get(keyName);
+      if (indexOrder instanceof BsonInt32) {
+        sb.append(((BsonInt32) indexOrder).intValue());
+      } else {
+        sb.append(indexOrder);
+      }
+      firstLoop = false;
+    }
+    return sb.toString();
   }
 
   // @Override
@@ -1536,6 +1525,48 @@ public class FongoDBCollection extends DBCollection {
     return bsonDocument;
   }
 
+  public static Document toDocument(BasicDBObject doc) {
+    if (doc == null) {
+      return null;
+    }
+
+    Map<String, Object> originalMap = doc.toMap();
+    Map<String, Object> resultMap = new HashMap<String, Object>();
+
+    for (Map.Entry<String, Object> entry : originalMap.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+
+      if (value == null) {
+        continue;
+      }
+
+      if (value instanceof BasicDBObject) {
+        value = toDocument((BasicDBObject) value);
+      }
+
+      if (value instanceof List<?>) {
+        List<?> list = (List<?>) value;
+        if (list.size() > 0) {
+          Object firstElement = list.get(0);
+          if (firstElement instanceof BasicDBObject) {
+            List<Document> resultList = new ArrayList<>(list.size());
+            for (Object listElement : list) {
+              resultList.add(toDocument((BasicDBObject) listElement));
+            }
+            value = resultList;
+          } else {
+            value = list;
+          }
+        }
+      }
+
+      resultMap.put(key, value);
+    }
+
+    return new Document(resultMap);
+  }
+
   public static List<BsonDocument> bsonDocuments(Iterable<DBObject> dbObjects) {
     if (dbObjects == null) {
       return null;
@@ -1615,15 +1646,6 @@ public class FongoDBCollection extends DBCollection {
       // TODO I _think_ this should use `bsonDocument(cur.getDetails())` for the details instead of `new BsonDocument()` but the unit tests check for `new BsonDocument()`...
       com.mongodb.bulk.BulkWriteError e = new com.mongodb.bulk.BulkWriteError(cur.getCode(), cur.getMessage(), new BsonDocument(), cur.getIndex());
       retVal.add(e);
-    }
-    return retVal;
-  }
-
-  public static List<com.mongodb.bulk.WriteRequest> translateWriteRequestsToNew(final List<com.mongodb.WriteRequest> writeRequests,
-                                                                                final Codec<DBObject> objectCodec) {
-    List<com.mongodb.bulk.WriteRequest> retVal = new ArrayList<com.mongodb.bulk.WriteRequest>(writeRequests.size());
-    for (com.mongodb.WriteRequest cur : writeRequests) {
-      retVal.add(cur.toNew());
     }
     return retVal;
   }

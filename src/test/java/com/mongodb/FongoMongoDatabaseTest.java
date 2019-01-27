@@ -4,6 +4,8 @@ import com.github.fakemongo.Fongo;
 import static com.mongodb.WriteConcern.REPLICA_ACKNOWLEDGED;
 import com.mongodb.client.MongoDatabase;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.mongodb.client.internal.FongoMongoDatabase;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.junit.Before;
 import org.junit.Test;

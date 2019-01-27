@@ -4,27 +4,19 @@ import com.github.fakemongo.impl.Util;
 import com.github.fakemongo.impl.index.IndexAbstract;
 import com.github.fakemongo.junit.FongoRule;
 import com.google.common.collect.Lists;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.FongoDBCollection;
-import com.mongodb.MongoCommandException;
-import com.mongodb.MongoException;
-import java.util.Arrays;
-import java.util.List;
+import com.mongodb.*;
 import org.assertj.core.api.Assertions;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.RuleChain;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class FongoIndexTest {
 

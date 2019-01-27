@@ -6,8 +6,8 @@ import com.mongodb.connection.Cluster;
 import com.mongodb.connection.ClusterDescription;
 import com.mongodb.connection.ClusterSettings;
 import com.mongodb.connection.Server;
-import com.mongodb.operation.AsyncOperationExecutor;
 import com.mongodb.selector.ServerSelector;
+import org.bson.BsonTimestamp;
 import org.bson.Document;
 
 public class MockAsyncMongoClient extends MongoClientImpl {
@@ -27,6 +27,16 @@ public class MockAsyncMongoClient extends MongoClientImpl {
       @Override
       public ClusterDescription getDescription() {
         return null;
+      }
+
+      @Override
+      public ClusterDescription getCurrentDescription() {
+        return null;
+      }
+
+      @Override
+      public BsonTimestamp getClusterTime() {
+        return new BsonTimestamp(System.currentTimeMillis());
       }
 
       @Override
@@ -52,7 +62,7 @@ public class MockAsyncMongoClient extends MongoClientImpl {
     return client;
   }
 
-  public MockAsyncMongoClient(final FongoAsync fongoAsync, final MongoClientSettings settings, final Cluster cluster, final AsyncOperationExecutor executor) {
+  public MockAsyncMongoClient(final FongoAsync fongoAsync, final MongoClientSettings settings, final Cluster cluster, final VisibleOperationExecutor executor) {
     super(settings, cluster, executor);
     this.fongoAsync = fongoAsync;
   }

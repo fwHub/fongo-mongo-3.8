@@ -1,12 +1,7 @@
 package com.github.fakemongo.integration;
 
 import com.github.fakemongo.Fongo;
-import com.mongodb.Mongo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import com.mongodb.MongoClient;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -18,6 +13,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class SpringQueryTest {
 
@@ -90,7 +92,7 @@ public class SpringQueryTest {
     }
 
     @Override
-    public Mongo mongo() throws Exception {
+    public MongoClient mongoClient() {
       return new Fongo(getDatabaseName()).getMongo();
     }
 

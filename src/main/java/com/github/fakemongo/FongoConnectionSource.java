@@ -4,6 +4,8 @@ import com.mongodb.binding.ConnectionSource;
 import com.mongodb.connection.Connection;
 import com.mongodb.connection.ServerConnectionState;
 import com.mongodb.connection.ServerDescription;
+import com.mongodb.internal.connection.NoOpSessionContext;
+import com.mongodb.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,11 @@ class FongoConnectionSource implements ConnectionSource {
   @Override
   public ServerDescription getServerDescription() {
     return ServerDescription.builder().address(fongo.getServerAddress()).state(ServerConnectionState.CONNECTED).version(fongo.getServerVersion()).build();
+  }
+
+  @Override
+  public SessionContext getSessionContext() {
+    return NoOpSessionContext.INSTANCE;
   }
 
   @Override

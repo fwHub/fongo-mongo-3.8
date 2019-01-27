@@ -1,30 +1,28 @@
 package com.github.fakemongo;
 
-import com.mongodb.DB;
-import com.mongodb.FongoDB;
-import com.mongodb.MockMongoClient;
-import com.mongodb.MongoClient;
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
+import com.mongodb.*;
 import com.mongodb.binding.ConnectionSource;
 import com.mongodb.binding.ReadBinding;
 import com.mongodb.binding.WriteBinding;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.internal.VisibleOperationExecutor;
 import com.mongodb.connection.ServerVersion;
+import com.mongodb.internal.connection.NoOpSessionContext;
 import com.mongodb.operation.OperationExecutor;
 import com.mongodb.operation.ReadOperation;
 import com.mongodb.operation.WriteOperation;
+import com.mongodb.session.SessionContext;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Faked out version of com.mongodb.Mongo
@@ -44,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author jon
  * @author twillouer
  */
-public class Fongo implements OperationExecutor {
+public class Fongo implements OperationExecutor, VisibleOperationExecutor {
   private final static Logger LOG = LoggerFactory.getLogger(Fongo.class);
 
   public static final ServerVersion V3_2_SERVER_VERSION = new ServerVersion(3, 2);
@@ -175,7 +173,22 @@ public class Fongo implements OperationExecutor {
     return MockMongoClient.create(this);
   }
 
+  @Override
+  public <T> T execute(ReadOperation<T> operation, ReadPreference readPreference, ReadConcern readConcern, ClientSession session) {
+    return execute(operation, readPreference);
+  }
+
+  @Override
+  public <T> T execute(ReadOperation<T> operation, ReadPreference readPreference, ReadConcern readConcern) {
+    return execute(operation, readPreference);
+  }
+
+  @Override
   public <T> T execute(final ReadOperation<T> operation, final ReadPreference readPreference) {
+    return execute(operation, readPreference, NoOpSessionContext.INSTANCE);
+  }
+
+  private <T> T execute(final ReadOperation<T> operation, final ReadPreference readPreference, final SessionContext sessionContext) {
     return operation.execute(new ReadBinding() {
       @Override
       public ReadPreference getReadPreference() {
@@ -185,6 +198,11 @@ public class Fongo implements OperationExecutor {
       @Override
       public ConnectionSource getReadConnectionSource() {
         return new FongoConnectionSource(Fongo.this);
+      }
+
+      @Override
+      public SessionContext getSessionContext() {
+        return sessionContext;
       }
 
       @Override
@@ -204,11 +222,31 @@ public class Fongo implements OperationExecutor {
     });
   }
 
+  @Override
+  public <T> T execute(WriteOperation<T> operation, ReadConcern readConcern, ClientSession session) {
+    return execute(operation);
+  }
+
+  @Override
+  public <T> T execute(WriteOperation<T> operation, ReadConcern readConcern) {
+    return execute(operation);
+  }
+
+  @Override
   public <T> T execute(final WriteOperation<T> operation) {
+    return execute(operation, NoOpSessionContext.INSTANCE);
+  }
+
+  private <T> T execute(final WriteOperation<T> operation, final SessionContext sessionContext) {
     return operation.execute(new WriteBinding() {
       @Override
       public ConnectionSource getWriteConnectionSource() {
         return new FongoConnectionSource(Fongo.this);
+      }
+
+      @Override
+      public SessionContext getSessionContext() {
+        return sessionContext;
       }
 
       @Override

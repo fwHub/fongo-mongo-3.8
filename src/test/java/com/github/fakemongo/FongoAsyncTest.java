@@ -1,20 +1,22 @@
 package com.github.fakemongo;
 
-import static com.github.fakemongo.AbstractFongoV3Test.docId;
 import com.github.fakemongo.junit.FongoAsyncRule;
 import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
 import com.mongodb.async.client.MongoIterable;
-import java.util.ArrayList;
-import static java.util.Arrays.asList;
-import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.bson.Document;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.github.fakemongo.AbstractFongoV3Test.docId;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *

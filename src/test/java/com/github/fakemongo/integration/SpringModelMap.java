@@ -11,7 +11,7 @@ import java.util.Map;
  */
 @Document
 @CompoundIndexes({
-        @CompoundIndex(name = "serial_date_idx", def = "{'barcode.serial': 1, barcode.time: 1}")
+        @CompoundIndex(name = "serial_date_idx", def = "{'barcode.serial': 1, 'barcode.time': 1}")
 })
 public class SpringModelMap
 {

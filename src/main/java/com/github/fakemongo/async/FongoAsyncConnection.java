@@ -2,6 +2,7 @@ package com.github.fakemongo.async;
 
 import com.github.fakemongo.FongoConnection;
 import com.mongodb.MongoNamespace;
+import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteConcernResult;
 import com.mongodb.async.SingleResultCallback;
@@ -9,19 +10,16 @@ import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.bulk.DeleteRequest;
 import com.mongodb.bulk.InsertRequest;
 import com.mongodb.bulk.UpdateRequest;
-import com.mongodb.connection.AsyncConnection;
-import com.mongodb.connection.ClusterId;
-import com.mongodb.connection.ConnectionDescription;
-import com.mongodb.connection.QueryResult;
-import com.mongodb.connection.ServerId;
-import com.mongodb.connection.ServerVersion;
-import java.util.List;
-import java.util.concurrent.Callable;
+import com.mongodb.connection.*;
+import com.mongodb.session.SessionContext;
 import org.bson.BsonDocument;
 import org.bson.FieldNameValidator;
 import org.bson.codecs.Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  *
@@ -56,36 +54,35 @@ class FongoAsyncConnection implements AsyncConnection {
   }
 
   @Override
-  public void insertAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<InsertRequest> inserts, SingleResultCallback<WriteConcernResult> callback) {
+  public void insertAsync(final MongoNamespace namespace, final boolean ordered, final InsertRequest insert, SingleResultCallback<WriteConcernResult> callback) {
     asyncResult(new Callable<WriteConcernResult>() {
       @Override
       public WriteConcernResult call() throws Exception {
-        return fongoConnection.insert(namespace, ordered, writeConcern, inserts);
+        return fongoConnection.insert(namespace, ordered, insert);
       }
     }, callback);
   }
 
   @Override
-  public void updateAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<UpdateRequest> updates, SingleResultCallback<WriteConcernResult> callback) {
+  public void updateAsync(final MongoNamespace namespace, final boolean ordered, final UpdateRequest update, SingleResultCallback<WriteConcernResult> callback) {
     asyncResult(new Callable<WriteConcernResult>() {
       @Override
       public WriteConcernResult call() throws Exception {
-        return fongoConnection.update(namespace, ordered, writeConcern, updates);
+        return fongoConnection.update(namespace, ordered, update);
       }
     }, callback);
   }
 
   @Override
-  public void deleteAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<DeleteRequest> deletes, SingleResultCallback<WriteConcernResult> callback) {
+  public void deleteAsync(final MongoNamespace namespace, final boolean ordered, final DeleteRequest delete, SingleResultCallback<WriteConcernResult> callback) {
     asyncResult(new Callable<WriteConcernResult>() {
       @Override
       public WriteConcernResult call() throws Exception {
-        return fongoConnection.delete(namespace, ordered, writeConcern, deletes);
+        return fongoConnection.delete(namespace, ordered, delete);
       }
     }, callback);
   }
 
-  @Override
   public void insertCommandAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<InsertRequest> inserts, SingleResultCallback<BulkWriteResult> callback) {
     asyncResult(new Callable<BulkWriteResult>() {
       @Override
@@ -95,7 +92,6 @@ class FongoAsyncConnection implements AsyncConnection {
     }, callback);
   }
 
-  @Override
   public void insertCommandAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final Boolean bypassDocumentValidation, final List<InsertRequest> inserts, SingleResultCallback<BulkWriteResult> callback) {
     asyncResult(new Callable<BulkWriteResult>() {
       @Override
@@ -105,7 +101,6 @@ class FongoAsyncConnection implements AsyncConnection {
     }, callback);
   }
 
-  @Override
   public void updateCommandAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<UpdateRequest> updates, SingleResultCallback<BulkWriteResult> callback) {
     asyncResult(new Callable<BulkWriteResult>() {
       @Override
@@ -115,7 +110,6 @@ class FongoAsyncConnection implements AsyncConnection {
     }, callback);
   }
 
-  @Override
   public void updateCommandAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final Boolean bypassDocumentValidation, final List<UpdateRequest> updates, SingleResultCallback<BulkWriteResult> callback) {
     asyncResult(new Callable<BulkWriteResult>() {
       @Override
@@ -125,7 +119,6 @@ class FongoAsyncConnection implements AsyncConnection {
     }, callback);
   }
 
-  @Override
   public void deleteCommandAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<DeleteRequest> deletes, SingleResultCallback<BulkWriteResult> callback) {
     asyncResult(new Callable<BulkWriteResult>() {
       @Override
@@ -143,6 +136,32 @@ class FongoAsyncConnection implements AsyncConnection {
       @Override
       public T call() throws Exception {
         return fongoConnection.command(database, command, slaveOk, fieldNameValidator, commandResultDecoder);
+      }
+    }, callback);
+  }
+
+  @Override
+  public <T> void commandAsync(final String database, final BsonDocument command, final FieldNameValidator fieldNameValidator, ReadPreference readPreference, final Decoder<T> commandResultDecoder, SessionContext sessionContext, SingleResultCallback<T> callback) {
+    LOG.info("commandAsync() command:{}", command);
+    asyncResult(new Callable<T>() {
+      @Override
+      public T call() throws Exception {
+        return fongoConnection.command(database, command, fieldNameValidator, readPreference, commandResultDecoder, sessionContext);
+      }
+    }, callback);
+  }
+
+  @Override
+  public <T> void commandAsync(final String database, final BsonDocument command, final FieldNameValidator fieldNameValidator,
+                               final ReadPreference readPreference, final Decoder<T> commandResultDecoder, final SessionContext sessionContext,
+                               final boolean responseExpected, final SplittablePayload payload, final FieldNameValidator payloadFieldNameValidator,
+                               SingleResultCallback<T> callback) {
+    LOG.info("commandAsync() command:{}", command);
+    asyncResult(new Callable<T>() {
+      @Override
+      public T call() throws Exception {
+        return fongoConnection.command(database, command, fieldNameValidator, readPreference, commandResultDecoder,
+            sessionContext, responseExpected, payload, payloadFieldNameValidator);
       }
     }, callback);
   }

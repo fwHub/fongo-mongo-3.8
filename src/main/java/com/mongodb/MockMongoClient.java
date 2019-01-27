@@ -4,26 +4,19 @@ import com.github.fakemongo.Fongo;
 import com.github.fakemongo.FongoConnection;
 import com.mongodb.async.SingleResultCallback;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.connection.AsyncConnection;
-import com.mongodb.connection.BufferProvider;
-import com.mongodb.connection.Cluster;
-import com.mongodb.connection.ClusterConnectionMode;
-import com.mongodb.connection.ClusterDescription;
-import com.mongodb.connection.ClusterSettings;
-import com.mongodb.connection.ClusterType;
-import com.mongodb.connection.Connection;
-import com.mongodb.connection.Server;
-import com.mongodb.connection.ServerConnectionState;
-import com.mongodb.connection.ServerDescription;
+import com.mongodb.client.internal.FongoMongoDatabase;
+import com.mongodb.client.internal.VisibleOperationExecutor;
+import com.mongodb.connection.*;
 import com.mongodb.internal.connection.PowerOfTwoBufferPool;
-import com.mongodb.operation.OperationExecutor;
 import com.mongodb.selector.ServerSelector;
+import org.bson.BsonTimestamp;
+import org.objenesis.ObjenesisHelper;
+import org.objenesis.ObjenesisStd;
+
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.objenesis.ObjenesisHelper;
-import org.objenesis.ObjenesisStd;
 
 public class MockMongoClient extends MongoClient {
 
@@ -141,6 +134,16 @@ public class MockMongoClient extends MongoClient {
       }
 
       @Override
+      public ClusterDescription getCurrentDescription() {
+        return getDescription();
+      }
+
+      @Override
+      public BsonTimestamp getClusterTime() {
+        return new BsonTimestamp(System.currentTimeMillis());
+      }
+
+      @Override
       public Server selectServer(ServerSelector serverSelector) {
         return new Server() {
           @Override
@@ -178,7 +181,7 @@ public class MockMongoClient extends MongoClient {
     };
   }
 
-  OperationExecutor createOperationExecutor() {
+  VisibleOperationExecutor createOperationExecutor() {
     return fongo;
   }
 

@@ -2,28 +2,30 @@ package com.github.fakemongo.async;
 
 import com.github.fakemongo.AwaitResultSingleResultCallback;
 import com.github.fakemongo.Fongo;
+import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.async.SingleResultCallback;
-import com.mongodb.async.client.FongoAsyncMongoDatabase;
-import com.mongodb.async.client.MockAsyncMongoClient;
-import com.mongodb.async.client.MongoClient;
-import com.mongodb.async.client.MongoClients;
+import com.mongodb.async.client.*;
 import com.mongodb.binding.AsyncConnectionSource;
 import com.mongodb.binding.AsyncReadBinding;
 import com.mongodb.binding.AsyncWriteBinding;
 import com.mongodb.connection.ServerVersion;
+import com.mongodb.internal.connection.NoOpSessionContext;
 import com.mongodb.operation.AsyncOperationExecutor;
 import com.mongodb.operation.AsyncReadOperation;
 import com.mongodb.operation.AsyncWriteOperation;
+import com.mongodb.session.ClientSession;
+import com.mongodb.session.SessionContext;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Faked out version of com.mongodb.client.async.Mongo
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author twillouer
  */
-public class FongoAsync implements AsyncOperationExecutor {
+public class FongoAsync implements AsyncOperationExecutor, VisibleOperationExecutor {
   private final static Logger LOG = LoggerFactory.getLogger(FongoAsync.class);
 
   public static final ServerVersion DEFAULT_SERVER_VERSION = new ServerVersion(3, 0);
@@ -148,6 +150,16 @@ public class FongoAsync implements AsyncOperationExecutor {
     return "FongoAsync (" + this.name + ")";
   }
 
+  @Override
+  public <T> void execute(AsyncReadOperation<T> operation, ReadPreference readPreference, ReadConcern readConcern, com.mongodb.async.client.ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, readPreference, callback);
+  }
+
+  @Override
+  public <T> void execute(AsyncReadOperation<T> operation, ReadPreference readPreference, ReadConcern readConcern, SingleResultCallback<T> callback) {
+    execute(operation, readPreference, callback);
+  }
+
   /**
    * Execute the read operation with the given read preference.
    *
@@ -157,10 +169,24 @@ public class FongoAsync implements AsyncOperationExecutor {
    */
   @Override
   public <T> void execute(final AsyncReadOperation<T> operation, final ReadPreference readPreference, SingleResultCallback<T> callback) {
+    execute(operation, readPreference, NoOpSessionContext.INSTANCE, callback);
+  }
+
+  @Override
+  public <T> void execute(AsyncReadOperation<T> operation, ReadPreference readPreference, ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, readPreference, NoOpSessionContext.INSTANCE, callback);
+  }
+
+  private <T> void execute(final AsyncReadOperation<T> operation, final ReadPreference readPreference, final SessionContext sessionContext, SingleResultCallback<T> callback) {
     operation.executeAsync(new AsyncReadBinding() {
       @Override
       public ReadPreference getReadPreference() {
         return readPreference;
+      }
+
+      @Override
+      public SessionContext getSessionContext() {
+        return sessionContext;
       }
 
       @Override
@@ -186,6 +212,16 @@ public class FongoAsync implements AsyncOperationExecutor {
     }, callback);
   }
 
+  @Override
+  public <T> void execute(AsyncWriteOperation<T> operation, ReadConcern readConcern, com.mongodb.async.client.ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, callback);
+  }
+
+  @Override
+  public <T> void execute(AsyncWriteOperation<T> operation, ReadConcern readConcern, SingleResultCallback<T> callback) {
+    execute(operation, callback);
+  }
+
   /**
    * Execute the write operation.
    *
@@ -194,11 +230,25 @@ public class FongoAsync implements AsyncOperationExecutor {
    */
   @Override
   public <T> void execute(final AsyncWriteOperation<T> operation, SingleResultCallback<T> callback) {
+    execute(operation, NoOpSessionContext.INSTANCE, callback);
+  }
+
+  @Override
+  public <T> void execute(final AsyncWriteOperation<T> operation, ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, NoOpSessionContext.INSTANCE, callback);
+  }
+
+  private <T> void execute(final AsyncWriteOperation<T> operation, final SessionContext sessionContext, SingleResultCallback<T> callback) {
     operation.executeAsync(new AsyncWriteBinding() {
       @Override
       public void getWriteConnectionSource(final SingleResultCallback<AsyncConnectionSource> callback) {
         LOG.info("getWriteConnectionSource() operation:" + operation.getClass());
         callback.onResult(new FongoAsyncConnectionSource(FongoAsync.this), null);
+      }
+
+      @Override
+      public SessionContext getSessionContext() {
+        return sessionContext;
       }
 
       @Override
