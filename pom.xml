@@ -81,9 +81,9 @@
 		</profile>
 	</profiles>
 	<scm>
-		<connection>scm:git:git@github.com:fwHub/morphia.git</connection>
-		<developerConnection>scm:git:git@github.com:fwHub/morphia.git</developerConnection>
-		<url>https://github.com/fwHub/morphia</url>
+		<connection>scm:git:git@github.com:fwHub/fongo-mongo-3.8.git</connection>
+		<developerConnection>scm:git:git@github.com:fwHub/fongo-mongo-3.8.git</developerConnection>
+		<url>https://github.com/fwHub/fongo-mongo-3.8</url>
 	  <tag>HEAD</tag>
   </scm>
 
