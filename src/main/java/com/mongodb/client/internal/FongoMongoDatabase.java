@@ -7,6 +7,8 @@ import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+
+import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistry;
 
 /**
@@ -21,7 +23,7 @@ public class FongoMongoDatabase extends MongoDatabaseImpl {
   }
 
   private FongoMongoDatabase(final String databaseName, final Fongo fongo, final CodecRegistry codecRegistry, final ReadPreference readPreference, final WriteConcern writeConcern, final ReadConcern readConcern) {
-    super(databaseName, codecRegistry, readPreference, writeConcern, true, readConcern, fongo);
+	  super(databaseName, codecRegistry, readPreference, writeConcern, true, true, readConcern, UuidRepresentation.JAVA_LEGACY, fongo);
     this.fongo = fongo;
   }
 

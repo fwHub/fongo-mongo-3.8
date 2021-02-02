@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2014 MongoDB, Inc.
+ * Copyright 2008-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,17 @@
 
 package org.bson.json;
 
-public class JsonBuffer {
+interface JsonBuffer {
 
-  private final String buffer;
-  private int position;
+    int getPosition();
 
-  public JsonBuffer(final String buffer) {
-    this.buffer = buffer;
-  }
+    int read();
 
-  public int getPosition() {
-    return position;
-  }
+    void unread(int c);
 
-  public void setPosition(final int position) {
-    this.position = position;
-  }
+    int mark();
 
-  public int read() {
-    return (position >= buffer.length()) ? -1 : buffer.charAt(position++);
-  }
+    void reset(int markPos);
 
-  public void unread(final int c) {
-    if (c != -1 && buffer.charAt(position - 1) == c) {
-      position--;
-    }
-  }
-
-  public String substring(final int beginIndex) {
-    return buffer.substring(beginIndex);
-  }
-
-  public String substring(final int beginIndex, final int endIndex) {
-    return buffer.substring(beginIndex, endIndex);
-  }
+    void discard(int markPos);
 }

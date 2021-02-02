@@ -10,6 +10,7 @@ import com.mongodb.connection.*;
 import com.mongodb.internal.connection.PowerOfTwoBufferPool;
 import com.mongodb.selector.ServerSelector;
 import org.bson.BsonTimestamp;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.objenesis.ObjenesisHelper;
 import org.objenesis.ObjenesisStd;
 
@@ -110,6 +111,11 @@ public class MockMongoClient extends MongoClient {
   public List<ServerAddress> getServerAddressList() {
     return Collections.singletonList(fongo.getServerAddress());
   }
+  
+  @Override
+	CodecRegistry getCodecRegistry() {
+	  return getMongoClientOptions().getCodecRegistry();
+	}
 
   private ServerDescription getServerDescription() {
     return ServerDescription.builder().address(fongo.getServerAddress()).state(ServerConnectionState.CONNECTED).version(fongo.getServerVersion()).build();
