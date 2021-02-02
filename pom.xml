@@ -3,7 +3,7 @@
 
     <groupId>com.github.fwHub</groupId>
     <artifactId>fongo</artifactId>
-    <version>2.1.1+com.cirkus.1-SNAPSHOT</version>
+    <version>2.1.1+com.cirkus.1</version>
     <name>fongo</name>
     <description>
         Fake in-memory mongo. Forked from https://github.com/Maltcommunity/fongo-mongo-3.8 and adapted 
@@ -84,7 +84,7 @@
 		<connection>scm:git:git@github.com:fwHub/fongo-mongo-3.8.git</connection>
 		<developerConnection>scm:git:git@github.com:fwHub/fongo-mongo-3.8.git</developerConnection>
 		<url>https://github.com/fwHub/fongo-mongo-3.8</url>
-	  <tag>HEAD</tag>
+	  <tag>r2.1.1+com.cirkus.1</tag>
   </scm>
 
     <properties>
