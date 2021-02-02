@@ -105,6 +105,12 @@
 
         <!-- Gpg -->
         <gpg.keyname>257FA0AB</gpg.keyname>
+        
+        <!--
+	    	Removed Javadocs due to compile error in FongoDBCollection that:
+            sun.reflect.generics.reflectiveObjects.NotImplementedException is not visible.
+        -->
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
@@ -383,9 +389,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- 
-	        Removed due to compile error in FongoDBCollection that:
-            sun.reflect.generics.reflectiveObjects.NotImplementedException is not visible.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -401,7 +404,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>jarjar-maven-plugin</artifactId>
